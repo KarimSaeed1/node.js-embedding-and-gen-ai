@@ -25,9 +25,8 @@ mongoose.connect(url).then((conn) => {
 });
 
 // Redis Connection
-app.use(async(req, res, next) => {
+app.use(async() => {
     await connectRedis();
-    next();
 });
 
 
