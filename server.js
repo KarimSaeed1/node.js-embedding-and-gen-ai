@@ -4,6 +4,8 @@ const cors = require("cors");
 const dotenv = require("dotenv");
 const mongoose = require("mongoose");
 
+// Services
+const {connectRedis} = require("./services/redis_client")
 
 // App Config
 dotenv.config({ path: ".env" });
@@ -16,13 +18,21 @@ app.use(cors());
 app.use(express.json());
 
 // DB Connection
-mongoose.connect(url, {
-    useNewUrlParser: true,
-}).then((conn) => {
+mongoose.connect(url).then((conn) => {
     console.log(`Connected to MongoDB on ${conn.connection.host}`);
 }).catch((err) => {
     console.log(err);
 });
+
+// Redis Connection
+app.use(async(req, res, next) => {
+    await connectRedis();
+    next();
+});
+
+
+// routes
+app.use("/products", require("./src/product/router"));
 
 // Listener
 app.listen(port, () => {
