@@ -19,8 +19,20 @@ const createProduct = async (req, res, next) => {
 const listProducts = async (req, res, next) => {
   try {
     const filter = { ...req.query };
+
+    // implement redis caching
+    const cacheKey = `products:${JSON.stringify(filter)}`;
+    const cached = await client.get(cacheKey);
+    if (cached) {
+      // cached is stringified JSON
+      return res.json(JSON.parse(cached));
+    }
+
     const products = await Product.find(filter);
     res.status(200).json({ data: products, count: products.length });
+
+    // 3) Populate cache (set with TTL)
+    await client.setEx(cacheKey, DEFAULT_TTL, JSON.stringify({ data: products, count: products.length }));
   } catch (err) {
     next(err);
   }

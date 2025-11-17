@@ -10,8 +10,8 @@ client.on('error', (err) => {
 });
 
 async function connectRedis() {
-  console.log('Connecting to Redis...');
   if (!client.isOpen) {
+    console.log('Connecting to Redis...');
     await client.connect();
   }
 }
